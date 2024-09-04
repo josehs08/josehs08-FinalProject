@@ -1,51 +1,74 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			token: localStorage.getItem("token") || null,
+			user: localStorage.getItem("user") || null,
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
+			register: async (user) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/users`, {
+						method: "POST",
+						headers: { 'Content-Type': 'application/json' },
+						body: user
+					})
+					if (response.ok) {
+						return response.status;
+					}
+					throw new Error(`Error registering user: ${response.statusText}`);
+				} catch (error) {
+					console.error(error);
 				}
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+			login: async (user) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/login`, {
+						method: "POST",
+						headers: { 'Content-Type': 'application/json' },
+						body: user
+					})
+					console.log('User:', user)
+					console.log('Response:', response)
+					const data = await response.json()
+					console.log("Data:", data)
+					if (response == 200) {
+						setStore({
+							token: data.token
+						})
+						localStorage.setItem("token", data.token)
+						getActions().getUserLogin()
+						return true
+					} else {
+						console.log(response)
+						return false
+					}
+				} catch (error) {
+					console.log(error)
+					console.log("aqui")
+				}
+			},
+			getUserLogin: async () => {
+				try {
+					console.log("Pase por aqui")
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user`, {
+						method: "GET",
+						headers: {
+							"Authorization": `Bearer ${getStore().token}`
+						}
+					})
+					const data = await response.json()
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+					if (response.ok) {
+						setStore({
+							user: data
+						})
 
-				//reset the global store
-				setStore({ demo: demo });
+						localStorage.setItem("user", JSON.stringify(data))
+					}
+
+				} catch (error) {
+					console.log(error)
+				}
 			}
 		}
 	};
