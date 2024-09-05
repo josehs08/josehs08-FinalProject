@@ -22,28 +22,26 @@ export const Register = () => {
         })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        const formData = new FormData()
-        formData.append("first_name", user.first_name)
-        formData.append("last_name", user.last_name)
-        formData.append("email", user.email)
-        formData.append("password", user.password)
-        const response = actions.register(formData)
-        response.then((res) => {
-            if (res == 201) {
+        try {
+            const response = await actions.register(user)
+            if (response) {
                 alert("User created")
                 setUser(initialState)
             } else {
                 alert("User not created")
             }
-        })
+        } catch (error) {
+            console.error(error)
+            alert("Error creating user")
+        }
     }
 
     return (
         <div className="container rounded border p-3">
             <h2 className="text-center">Register</h2>
-            <form action="" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
 
                 <div className="mb-3">
                     <label htmlFor="firstName" className="form-label">First Name</label>

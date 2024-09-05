@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-
+#TODO agregar fecha de creacion de cada uno.
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(30), unique=False, nullable=False)
@@ -18,6 +18,19 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
-            "first name": self.first_name,
-            "last name": self.last_name
+            "first_name": self.first_name,
+            "last_name": self.last_name
+        }
+    
+class Habit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    name = db.Column(db.String(30), unique=False, nullable=False)
+    description = db.Column(db.String(50), unique=False, nullable=False)
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "name":self.name,
+            "description":self.description
         }

@@ -20,24 +20,16 @@ export const Login = () => {
         })
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        const formData = new FormData()
-        formData.append("email", user.email)
-        formData.append("password", user.password)
-        console.log(formData)
-        console.log(user)
-        const response = actions.login(formData)
-        response.then((res) => {
-            if (res == 201) {
-                console.log(res)
-                alert("Loged")
-                setUser(initialState)
-            } else {
-                console.log(res)
-                alert("Login error")
+    const handleSubmit = async (e) => {
+        try {
+            e.preventDefault()
+            const response = await actions.login(user)
+            if (response == true) {
+                alert('Logged in successfully!')
             }
-        })
+        } catch (error) {
+            console.log("An error ocurred during login:", error.message)
+        }
     }
 
     return (

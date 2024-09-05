@@ -14,6 +14,9 @@ export const Navbar = () => {
 				<Link to="/profile">
 					<span className="mb-0">Profile</span>
 				</Link>
+				<Link to="/habit">
+					<span className="mb-0">Habit</span>
+				</Link>
 
 			</div>
 		</nav>

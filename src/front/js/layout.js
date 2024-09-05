@@ -9,6 +9,7 @@ import { Navbar } from "./component/navbar";
 import { Register } from "./pages/Register.jsx";
 import { Login } from "./pages/Login.jsx";
 import { Profile } from "./pages/Profile.jsx";
+import { Habit } from "./pages/Habit.jsx";
 
 //create your first component
 const Layout = () => {
@@ -16,19 +17,20 @@ const Layout = () => {
     // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
 
     return (
         <div>
             <BrowserRouter basename={basename}>
-                    <Navbar />
-                    <Routes>
-                        <Route element={<Home />} path="/" />
-                        <Route element={<Register/>} path="/register"/>
-                        <Route element={<Login/>} path="/login"/>
-                        <Route element={<Profile/>} path="/profile"/>
-                        <Route element={<h1>Not found!</h1>} />
-                    </Routes>
+                <Navbar />
+                <Routes>
+                    <Route element={<Home />} path="/" />
+                    <Route element={<Register />} path="/register" />
+                    <Route element={<Login />} path="/login" />
+                    <Route element={<Profile />} path="/profile" />
+                    <Route element={<Habit />} path="/habit" />
+                    <Route element={<h1>Not found!</h1>} />
+                </Routes>
 
             </BrowserRouter>
         </div>

@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Habit
 from api.utils import generate_sitemap, APIException, set_password
 from flask_cors import CORS
 from base64 import b64encode
@@ -65,13 +65,58 @@ def login():
     else: 
         if check_password(user.password, password, user.salt):
             token = create_access_token(identity = user.id)
-            return jsonify({"token":token})
+            return jsonify({"token":token}), 200
         else:
-            return jsonify({'error':'invalid credentials'})
+            return jsonify({'error':'invalid credentials'}), 400
         
 #Show users
 @api.route('/users', methods=['GET'])
 def get_all_users():
     users = User.query.all()
     result = list(map(lambda item: item.serialize(), users))
+    return jsonify(result), 200
+
+@api.route("/user", methods=["GET"])
+@jwt_required()
+def get_users_auth():
+    user = User.query.get(get_jwt_identity())
+    if user is None:
+        return jsonify({"message":"user not found"}), 404
+
+    return jsonify(user.serialize()), 200
+
+
+#Add habit
+@api.route("/habit", methods=["POST"])
+def add_habit():
+    data = request.json
+    habit = Habit(
+        name= data.get('name'),
+        description =data.get('description'),
+        user_id=data.get('user_id')
+    )
+    try:
+        db.session.add(habit)
+        db.session.commit()
+        return(jsonify(habit.serialize()))
+    except Exception as error:
+        print(error.args)
+        db.session.rollback()
+        return(jsonify({'error':'ocurrio un error'}))
+    
+#Get all habits
+@api.route("/habit", methods=["GET"])
+def get_all_habits():
+    habits = Habit.query.all()
+    result = list(map(lambda item: item.serialize(), habits))
+    return jsonify(result)
+
+#Show user habits
+@api.route("/user/<int:user_id>/habits", methods=["GET"])
+def get_user_habits(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({'error':'user not found'}), 404
+    habits = Habit.query.filter_by(user_id=user_id).all()
+    result = list(map(lambda item: item.serialize(), habits))
     return jsonify(result), 200
