@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
+import { ShowHabits } from "./ShowHabits.jsx";
+import { AddHabit } from "./AddHabit.jsx";
 
 export const Profile = () => {
 
@@ -25,8 +27,21 @@ export const Profile = () => {
                 </div>
             </div>
             <div className="d-flex justify-content-between">
-                <div className="border rounded">
-                    <h1>Habits</h1>
+                <div className="border rounded col-4 mt-3">
+                    <ShowHabits />
+
+
+                    <button type="button" className="btn btn-dark w-75 d-flex my-3 mx-auto" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Add Habits
+                    </button>
+
+                    <div className="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <AddHabit />
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="border rounded">
                     <h1>Challenges</h1>

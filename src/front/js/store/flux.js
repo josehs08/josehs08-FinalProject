@@ -76,14 +76,17 @@ const getState = ({ getStore, getActions, setStore }) => {
 					const data = await response.json()
 
 					if (response.ok) {
+						setStore({
+							habit: [...getStore().habit, data],
+						})
 						return true;
 					}
 					return false
-				}
-				catch (error) {
-					console.log(error)
+				} catch (error) {
+					console.log(error);
 				}
 			},
+
 			showHabit: async (user_id) => {
 				try {
 					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/habits`)
@@ -91,7 +94,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error(`Error fetching user data: ${response.status} ${response.statusText}`);
 					}
 					const data = await response.json()
-					console.log(data)
 					setStore({
 						habit: data
 					})
@@ -100,6 +102,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(error);
 
 				}
+			},
+
+			updateHabit: async (habit_id, habit) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}`, {
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(habit)
+					})
+					const data = await response.json()
+
+					if (response.ok) {
+						setStore({
+							habit: getStore().habit.map((item) => item.id === habit_id ? data : item)
+						});
+						return true;
+					}
+					return false
+				}
+				catch (error) {
+					console.log(error)
+				}
+
 			}
 		}
 	};

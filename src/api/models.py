@@ -1,4 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy # type: ignore
 
 db = SQLAlchemy()
 #TODO agregar fecha de creacion de cada uno.
@@ -26,11 +26,13 @@ class Habit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     name = db.Column(db.String(30), unique=False, nullable=False)
-    description = db.Column(db.String(50), unique=False, nullable=False)
+    description = db.Column(db.String(50), unique=False, nullable=True)
+    deleted = db.Column(db.Boolean, unique=False, nullable=False)
 
     def serialize(self):
         return{
             "id": self.id,
             "name":self.name,
-            "description":self.description
+            "description":self.description,
+            "deleted":self.deleted
         }

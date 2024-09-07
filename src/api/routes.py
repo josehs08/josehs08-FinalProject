@@ -1,13 +1,13 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import Flask, request, jsonify, url_for, Blueprint # type: ignore
 from api.models import db, User, Habit
 from api.utils import generate_sitemap, APIException, set_password
-from flask_cors import CORS
+from flask_cors import CORS # type: ignore
 from base64 import b64encode
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from werkzeug.security import check_password_hash
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity # type: ignore
+from werkzeug.security import check_password_hash # type: ignore
 import os
 
 
@@ -93,7 +93,8 @@ def add_habit():
     habit = Habit(
         name= data.get('name'),
         description =data.get('description'),
-        user_id=data.get('user_id')
+        user_id=data.get('user_id'),
+        deleted=False
     )
     try:
         db.session.add(habit)
@@ -120,3 +121,21 @@ def get_user_habits(user_id):
     habits = Habit.query.filter_by(user_id=user_id).all()
     result = list(map(lambda item: item.serialize(), habits))
     return jsonify(result), 200
+
+#Update user habit
+@api.route("/habits/<int:habit_id>", methods=["PUT"])
+def update_user_habit(habit_id):
+    habit = Habit.query.get(habit_id)
+    if habit is None:
+        return jsonify({'error':'habit not found'}), 404
+    new_data = request.json
+    habit.name = new_data.get('name', habit.name)
+    habit.description = new_data.get('description', habit.description)
+    habit.deleted = new_data.get('deleted', habit.deleted)
+    try:
+        db.session.commit()
+        return(jsonify(habit.serialize()))
+    except Exception as error:
+        print(error.args)
+        db.session.rollback()
+        return(jsonify({'error':'error'}))

@@ -34,20 +34,29 @@ export const AddHabit = () => {
     }
 
     return (
-        <div className="container border border-danger p-3">
-            <h2 className="text-center">Add Task</h2>
+        <div className="container border rounded p-3">
+            <h2 className="text-start">Add  New Habit</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Nombre</label>
-                    <input type="text" id="name" className="form-control" onChange={handleChange} value={habit.name} name="name" />
+                    <label htmlFor="name" className="form-label"><strong>Name</strong></label>
+                    <input type="text" id="name" className="form-control" onChange={handleChange} value={habit.name} name="name" placeholder="Drink water" />
                 </div>
 
                 <div className="mb-3">
-                    <label htmlFor="description" className="form-label">Descripcion</label>
-                    <input type="text" id="description" className="form-control" onChange={handleChange} value={habit.description} name="description" />
+                    <label htmlFor="description" className="form-label"><strong>Description</strong></label>
+                    <textarea type="text" id="description" className="form-control" onChange={handleChange} value={habit.description} name="description" placeholder="I want to drink water everyday" />
                 </div>
 
-                <button className="btn btn-success">Agregar</button>
+                <div className="mb-3">
+                    <label htmlFor="frecuency"><strong>Frecuency</strong></label>
+                    <select className="form-select" aria-label="Frecuency" name="frecunecy" id="frecuency">
+                        <option value="1">Daily</option>
+                        <option value="2">Weekly</option>
+                        <option value="3">Montly</option>
+                    </select>
+                </div>
+
+                <button className="btn btn-dark w-100">Add Habit</button>
 
             </form>
         </div>
