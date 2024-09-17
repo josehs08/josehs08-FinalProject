@@ -1,6 +1,6 @@
 import React from "react";
-import { AddHabit } from "./AddHabit.jsx";
-import { ShowHabits } from "./ShowHabits.jsx";
+import { AddHabit } from "../component/AddHabit.jsx";
+import { ShowHabits } from "../component/ShowHabits.jsx";
 
 export const Habit = () => {
     return (

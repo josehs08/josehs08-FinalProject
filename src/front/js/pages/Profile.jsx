@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { ShowHabits } from "./ShowHabits.jsx";
-import { AddHabit } from "./AddHabit.jsx";
+import { ShowHabits } from "../component/ShowHabits.jsx";
+import { AddHabit } from "../component/AddHabit.jsx";
 
 export const Profile = () => {
 
@@ -18,16 +18,18 @@ export const Profile = () => {
 
 
     return (
-        <div className="p-3">
+        <div className="p-5">
             <div className="d-flex justify-content-between">
-                <img src="https://picsum.photos/200" alt="" />
-                <h1>Nombre: {user.first_name} {user.last_name}</h1>
+                <div className="gap-2 d-flex">
+                    <img src="https://picsum.photos/200" alt="" />
+                    <h1>{user.first_name} {user.last_name}</h1>
+                </div>
                 <div className="border rounded">
                     <h1>Skills</h1>
                 </div>
             </div>
-            <div className="d-flex justify-content-between">
-                <div className="border rounded col-4 mt-3">
+            <div className="d-flex justify-content-between gap-1">
+                <div className="border rounded col-3 mt-3">
                     <ShowHabits />
 
 
@@ -43,10 +45,10 @@ export const Profile = () => {
                         </div>
                     </div>
                 </div>
-                <div className="border rounded">
+                <div className="border rounded col-3 ">
                     <h1>Challenges</h1>
                 </div>
-                <div className="border rounded">
+                <div className="border rounded col-3 ">
                     <h1>Settings</h1>
                 </div>
             </div>

@@ -27,7 +27,7 @@ class Habit(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     name = db.Column(db.String(30), unique=False, nullable=False)
     description = db.Column(db.String(50), unique=False, nullable=True)
-    deleted = db.Column(db.Boolean, unique=False, nullable=False)
+    deleted = db.Column(db.Boolean(), nullable=False)
 
     def serialize(self):
         return{
@@ -35,4 +35,18 @@ class Habit(db.Model):
             "name":self.name,
             "description":self.description,
             "deleted":self.deleted
+        }
+
+class Skill(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=False, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    description = db.Column(db.String(50), unique=False, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "name":self.name,
+            "description":self.description,
         }

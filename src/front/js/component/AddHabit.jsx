@@ -21,11 +21,10 @@ export const AddHabit = () => {
 
     const handleSubmit = async (e) => {
         try {
-            e.preventDefault()
             const response = await actions.addHabit(habit)
-            if (response) {
-                alert('Task created succesfully!')
-            }
+            // if (response) {
+            //     alert('Task created succesfully!')
+            // }
         }
         catch (error) {
             console.log(error)
@@ -36,7 +35,7 @@ export const AddHabit = () => {
     return (
         <div className="container border rounded p-3">
             <h2 className="text-start">Add  New Habit</h2>
-            <form onSubmit={handleSubmit}>
+            <form>
                 <div className="mb-3">
                     <label htmlFor="name" className="form-label"><strong>Name</strong></label>
                     <input type="text" id="name" className="form-control" onChange={handleChange} value={habit.name} name="name" placeholder="Drink water" />
@@ -56,7 +55,7 @@ export const AddHabit = () => {
                     </select>
                 </div>
 
-                <button className="btn btn-dark w-100">Add Habit</button>
+                <button type="button" className="btn btn-dark w-100" onClick={() => { handleSubmit() }}>Add Habit</button>
 
             </form>
         </div>

@@ -76,9 +76,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 					const data = await response.json()
 
 					if (response.ok) {
-						setStore({
-							habit: [...getStore().habit, data],
-						})
+						// setStore({
+						// 	habit: [...getStore().habit, data],
+						// })
+						getActions().showHabit(getStore().user.id)
 						return true;
 					}
 					return false
@@ -94,6 +95,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error(`Error fetching user data: ${response.status} ${response.statusText}`);
 					}
 					const data = await response.json()
+					console.log('Data received:', data)
 					setStore({
 						habit: data
 					})

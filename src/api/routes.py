@@ -94,7 +94,7 @@ def add_habit():
         name= data.get('name'),
         description =data.get('description'),
         user_id=data.get('user_id'),
-        deleted=False
+        deleted = False
     )
     try:
         db.session.add(habit)
