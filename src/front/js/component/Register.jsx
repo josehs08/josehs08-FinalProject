@@ -10,6 +10,7 @@ export const Register = () => {
         first_name: "",
         last_name: "",
         email: "",
+        foto: "",
         password: ""
     }
 
@@ -24,8 +25,17 @@ export const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        const formData = new FormData()
+
+        formData.append("first_name", user.first_name)
+        formData.append("email", user.email)
+        formData.append("password", user.password)
+        formData.append("last_name", user.last_name)
+        formData.append("foto", user.foto)
+
         try {
-            const response = await actions.register(user)
+            const response = await actions.register(formData)
             if (response) {
                 alert("User created")
                 setUser(initialState)
@@ -62,6 +72,18 @@ export const Register = () => {
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label text-start w-100">Password</label>
                     <input type="password" className="form-control" id="password" onChange={handleChange} value={user.password} name="password" />
+                </div>
+
+                <div className="mb-3">
+                    <label htmlFor="foto" className="form-label text-start w-100">Foto</label>
+                    <input
+                        type="file"
+                        className="form-control"
+                        id="foto"
+                        onChange={(e) => setUser({
+                            ...user, foto: e.target.files[0]
+                        })}
+                        name="foto" />
                 </div>
 
                 <button className="w-100 btn btn-dark">Register</button>

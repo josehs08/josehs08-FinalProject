@@ -11,8 +11,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("user desde el front", user)
 					const response = await fetch(`${process.env.BACKEND_URL}/api/users`, {
 						method: "POST",
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(user)
+						body: user
 					})
 					if (response.ok) {
 						return true;
@@ -22,6 +21,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(error);
 				}
 			},
+
 			login: async (user) => {
 				try {
 					const response = await fetch(`${process.env.BACKEND_URL}/api/login`, {
@@ -44,6 +44,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 				} catch (error) {
 					console.log(error)
 				}
+			},
+			logout: () => {
+				setStore({
+					user: null
+				})
+				localStorage.removeItem("token")
+				localStorage.removeItem("user")
 			},
 			getUserLogin: async () => {
 				try {
@@ -76,9 +83,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					const data = await response.json()
 
 					if (response.ok) {
-						// setStore({
-						// 	habit: [...getStore().habit, data],
-						// })
 						getActions().showHabit(getStore().user.id)
 						return true;
 					}
@@ -127,7 +131,74 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(error)
 				}
 
+			},
+			getSkills: async (user_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/skills`)
+					if (!response.ok) {
+						throw new Error(`Error fetching skills data: ${response.status} ${response.statusText}`);
+					}
+					const data = await response.json()
+					console.log('Data received:', data)
+					setStore({
+						skills: data
+					})
+				}
+				catch (error) {
+					console.log(error);
+				}
+			},
+			addSkills: async (skill) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${getStore().user.id}/skills`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(skill)
+					})
+					const data = await response.json()
+					if (response.ok) {
+						getActions().getSkills(getStore().user.id);
+						return true;
+					}
+
+					return true;
+				}
+				catch (error) {
+					console.log(error)
+				}
+			},
+			deleteSkills: async (skill_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${getStore().user.id}/skills/${skill_id}`, {
+						method: "DELETE"
+					})
+					if (response.ok) {
+						getActions().getSkills(getStore().user.id);
+						return true;
+					}
+				}
+				catch (error) {
+					console.log(error)
+				}
+			},
+
+			completeHabit: async (habit_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}/complete`, {
+						method: "POST"
+					})
+					if (response.ok) {
+						console.log('Se completo el habito')
+					}
+				}
+				catch (error) {
+					console.log(error);
+
+				}
 			}
+
 		}
 	};
 };

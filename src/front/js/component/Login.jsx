@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
 import { Context } from "../store/appContext.js"
+import { Navigate } from "react-router-dom";
 
 
 export const Login = () => {
 
-    const { actions } = useContext(Context)
+    const { actions, store } = useContext(Context)
 
     const initialState = {
         email: "",

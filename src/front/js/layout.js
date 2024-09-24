@@ -10,6 +10,8 @@ import { Register } from "./component/Register.jsx";
 import { Login } from "./component/Login.jsx";
 import { Profile } from "./pages/Profile.jsx";
 import { Habit } from "./pages/Habit.jsx";
+import { Skills } from "./pages/Skills.jsx";
+import { Settings } from "./pages/Settings.jsx";
 
 //create your first component
 const Layout = () => {
@@ -29,9 +31,10 @@ const Layout = () => {
                     <Route element={<Login />} path="/login" />
                     <Route element={<Profile />} path="/profile" />
                     <Route element={<Habit />} path="/habit" />
+                    <Route element={<Skills />} path="/skills" />
+                    <Route element={<Settings />} path="/settings" />
                     <Route element={<h1>Not found!</h1>} />
                 </Routes>
-
             </BrowserRouter>
         </div>
     );

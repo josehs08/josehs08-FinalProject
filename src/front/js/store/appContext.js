@@ -31,6 +31,7 @@ const injectContext = PassedComponent => {
 			//state.actions.getMessage(); // <---- calling this function from the flux.js actions
 			if (state.store.user) {
 				state.actions.showHabit(state.store.user.id)
+				state.actions.getSkills(state.store.user.id)
 			}
 		}, []);
 
