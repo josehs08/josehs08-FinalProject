@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { Context } from "../store/appContext";
+import React, { useState, useContext } from 'react';
+import { Context } from '../store/appContext';
 
 export const EditHabit = ({ habit }) => {
   const { actions, store } = useContext(Context);
@@ -17,7 +17,7 @@ export const EditHabit = ({ habit }) => {
       e.preventDefault();
       const response = await actions.updateHabit(newHabit.id, newHabit);
       if (response) {
-        alert("Habit modified succesfuly");
+        alert('Habit modified succesfuly');
       }
     } catch (error) {
       console.log(error);
@@ -26,37 +26,37 @@ export const EditHabit = ({ habit }) => {
 
   return (
     <>
-      <form className="border p-3 rounded" onSubmit={handleSubmit}>
+      <form className='border p-3 rounded' onSubmit={handleSubmit}>
         <h2>Edit Habit</h2>
-        <div className="mb-3">
-          <label className="form-label" htmlFor="name">
+        <div className='mb-3'>
+          <label className='form-label' htmlFor='name'>
             Name
           </label>
           <input
-            className="form-control"
-            id="name"
-            type="text"
+            className='form-control'
+            id='name'
+            type='text'
             value={newHabit.name}
             onChange={handleChange}
-            name="name"
+            name='name'
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label" htmlFor="description">
+        <div className='mb-3'>
+          <label className='form-label' htmlFor='description'>
             Description
           </label>
           <input
-            className="form-control"
-            type="text"
-            id="description"
+            className='form-control'
+            type='text'
+            id='description'
             value={newHabit.description}
             onChange={handleChange}
-            name="description"
+            name='description'
           />
         </div>
 
-        <button className="btn btn-dark">Submit</button>
+        <button className='btn btn-dark'>Submit</button>
       </form>
     </>
   );
