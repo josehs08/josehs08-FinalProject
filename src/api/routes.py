@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint # type: ignore
-from api.models import db, User, Habit, Skill
+from api.models import db, User, Habit, Skill, Habit_Tracker
 from api.utils import generate_sitemap, APIException, set_password
 from flask_cors import CORS # type: ignore
 from base64 import b64encode
@@ -11,12 +11,9 @@ from werkzeug.security import check_password_hash # type: ignore
 import os
 import cloudinary.uploader as uploader #type: ignore
 
-
 api = Blueprint('api', __name__)
 
-# Allow CORS requests to this API
 CORS(api)
-
 
 def check_password(hash_password, password, salt):
     return check_password_hash(hash_password, f"{password}{salt}")
@@ -48,13 +45,12 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-#Register
-###TODO: Falta validar los datos y mejorar las respuestas.
+########USER########
+#REGISTER USER TODO: Falta validar los datos y mejorar las respuestas.
 @api.route("/users", methods=["POST"])
 def add_user():
     data_form = request.form
     data_files = request.files
-
     data = {
         "first_name":data_form.get("first_name"),
         "last_name":data_form.get("last_name"),
@@ -62,31 +58,20 @@ def add_user():
         "password":data_form.get("password"),
         "foto":data_files.get("foto")
     }
-
     first_name = data.get("first_name", None)
     last_name = data.get("last_name", None)
     email = data.get("email", None)
     password = data.get("password", None)
     foto = data.get("foto", None)
-    
     if email is None or password is None or last_name is None or first_name is None:
         return jsonify("you need an the email and a password"), 400
-    
     else:
         user = User.query.filter_by(email=email).one_or_none()
-
         if user is not None : 
             return jsonify("user existe"), 400
-        
-
         salt = b64encode(os.urandom(32)).decode("utf-8")
         password = set_password(password, salt)
-        
         result_cloud = uploader.upload(foto)
-
-        print(result_cloud.get("secure_url"))
-        print(result_cloud.get("public_id"))
-
         user = User(
                 email=email, 
                 password=password,
@@ -96,7 +81,6 @@ def add_user():
                 salt=salt, 
                 foto=result_cloud.get("secure_url"), 
                 public_id_foto=result_cloud.get("public_id"))
-
         try:
             db.session.add(user)
             db.session.commit()
@@ -106,8 +90,39 @@ def add_user():
             print(error.args)
             db.session.rollback()
             return jsonify({"message":f"error: {error}"}), 500
-        
-#Login
+
+#UPDATE     
+@api.route('user/<int:user_id>', methods=['PUT'])
+def modify_user(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found"}), 400
+    data = request.json
+    files = request.files
+    if "email" in data and data["email"]!= user.email:
+        existing_user = User.query.filter_by(email=data["email"]).one_or_none()
+        if existing_user is not None:
+            return jsonify({"message": "Email already exists"}), 400
+    user.first_name = data.get("first_name", user.first_name)
+    user.last_name = data.get("last_name", user.last_name)
+    user.email = data.get("email", user.email)
+    if "password" in data:
+        salt = b64encode(os.urandom(32)).decode("utf-8")
+        user.password = set_password(data["password"], salt)
+        user.salt = salt
+    if "foto" in files:
+        result_cloud = uploader.upload(files["foto"])
+        user.foto = result_cloud.get("secure_url")
+        user.public_id_foto = result_cloud.get("public_id")
+    try:
+        db.session.commit()
+        return jsonify({"message": "User updated"}), 200
+    except Exception as error:
+        print(error.args)
+        db.session.rollback()
+        return jsonify({"message": f"error: {error}"}), 500
+
+#LOGIN
 @api.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -124,13 +139,14 @@ def login():
         else:
             return jsonify({'error':'invalid credentials'}), 400
         
-#Show users
+#GET ALL
 @api.route('/users', methods=['GET'])
 def get_all_users():
     users = User.query.all()
     result = list(map(lambda item: item.serialize(), users))
     return jsonify(result), 200
 
+#GET AUTH
 @api.route("/user", methods=["GET"])
 @jwt_required()
 def get_users_auth():
@@ -141,7 +157,8 @@ def get_users_auth():
     return jsonify(user.serialize()), 200
 
 
-#Add habit
+########HABIT########
+#ADD
 @api.route("/habit", methods=["POST"])
 def add_habit():
     data = request.json
@@ -160,14 +177,14 @@ def add_habit():
         db.session.rollback()
         return(jsonify({'error':'ocurrio un error'}))
     
-#Get all habits
+#GET ALL
 @api.route("/habit", methods=["GET"])
 def get_all_habits():
     habits = Habit.query.all()
     result = list(map(lambda item: item.serialize(), habits))
     return jsonify(result)
 
-#Show user habits
+#SHOW HABITS FROM USER
 @api.route("/user/<int:user_id>/habits", methods=["GET"])
 def get_user_habits(user_id):
     user = User.query.get(user_id)
@@ -177,7 +194,7 @@ def get_user_habits(user_id):
     result = list(map(lambda item: item.serialize(), habits))
     return jsonify(result), 200
 
-#Update user habit
+#UPDATE HABITS FROM USER
 @api.route("/habits/<int:habit_id>", methods=["PUT"])
 def update_user_habit(habit_id):
     habit = Habit.query.get(habit_id)
@@ -196,16 +213,15 @@ def update_user_habit(habit_id):
         return(jsonify({'error':'error'}))
 
 
-
-
-#Get user skills
+########SKILLS########
+#GET SKILLS FROM USER
 @api.route("/user/<int:user_id>/skills", methods=["GET"])
 def get_skills(user_id):
     skills=Skill.query.filter_by(user_id = user_id).all()
     result = list(map(lambda item: item.serialize(), skills))
     return jsonify(result)
 
-#create Skill
+#ADD
 @api.route("/user/<int:user_id>/skills", methods=["POST"])
 def create_skill(user_id):
     data = request.json
@@ -226,7 +242,7 @@ def create_skill(user_id):
         print(e)
         return jsonify({"error": "Failed to create skill"}), 400
 
-# Delete Skill
+#DELETE
 @api.route("/user/<int:user_id>/skills/<int:skill_id>", methods=["DELETE"])
 def delete_skill(user_id, skill_id):
     try:
@@ -240,7 +256,7 @@ def delete_skill(user_id, skill_id):
         print(e)
         return jsonify({"error": "Failed to delete skill"}), 400
 
-# Update Skill
+#UPDATE
 @api.route("/user/<int:user_id>/skills/<int:skill_id>", methods=["PUT"])
 def update_skill(user_id, skill_id):
     try:
@@ -260,12 +276,50 @@ def update_skill(user_id, skill_id):
     except Exception as e:
         print(e)
         return jsonify({"error": "Failed to update skill"}), 400
-    
-@api.route("/habits/<int:habit_id>/complete", methods=["POST"])
-def complete_habit(habit_id):
+
+
+########HABIT CHECKER########
+#MARK AS DONE
+@api.route("/habit/<int:habit_id>/<int:user_id>/complete", methods=["POST"])
+def complete_habit(habit_id, user_id):
     habit = Habit.query.get(habit_id)
     if habit:
-        habit.completed = True
-        db.session.commit()
-        return {"message": "Hábito completado"}
-    return {"message": "Hábito no encontrado"}, 404
+        tracker = Habit_Tracker.query.filter_by(habit_id=habit_id).first()
+        if tracker:
+            # Verifica si el hábito ya está completado
+            if tracker.completed:
+                # Si lo está, marca como no completado y actualiza la base de datos
+                tracker.completed = False
+                db.session.commit()
+                return jsonify({"message": "Hábito marcado como no completado"}), 200
+            else:
+                # Si no lo está, marca como completado y actualiza la base de datos
+                tracker.completed = True
+                db.session.commit()
+                return jsonify({"message": "Hábito marcado como completado"}), 200
+        else:
+            new_tracker = Habit_Tracker(
+                habit_id=habit.id,
+                user_id=user_id,
+                completed=True,
+                deleted=False,
+            )
+            db.session.add(new_tracker)
+            db.session.commit()
+            return jsonify({"message": "Nueva instancia de Habit_Tracker creada"}), 201
+    else:
+        return jsonify({"error": "Habit no encontrado"}), 404
+    
+#GET ALL
+@api.route('/habitt', methods=['GET'])
+def get_all_habitt():
+    habit = Habit_Tracker.query.all()
+    result = list(map(lambda item: item.serialize(), habit))
+    return jsonify(result), 200
+
+#GET FROM USER
+@api.route('/user/<int:user_id>/habitt', methods=['GET'])
+def habits_check_by_user(user_id):
+    habit = Habit_Tracker.query.filter_by(user_id=user_id)
+    result = list(map(lambda item: item.serialize(), habit))
+    return jsonify(result), 200

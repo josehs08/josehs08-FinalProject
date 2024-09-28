@@ -32,6 +32,7 @@ const injectContext = PassedComponent => {
 			if (state.store.user) {
 				state.actions.showHabit(state.store.user.id)
 				state.actions.getSkills(state.store.user.id)
+				state.actions.userHabitsChecked(state.store.user.id)
 			}
 		}, []);
 

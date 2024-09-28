@@ -197,8 +197,59 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(error);
 
 				}
-			}
+			},
 
+			editUser: async (user) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/users/${user.id}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(user)
+					})
+					if (response.ok) {
+						console.log("Probando");
+
+					}
+				} catch (error) {
+					console.log(error);
+
+				}
+			},
+
+			checkHabit: async (habit_id, user_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habit/${habit_id}/${user_id}/complete`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+					});
+					const data = await response.json()
+					if (response.ok) {
+						getActions().userHabitsChecked(user_id)
+					}
+					return await response.json();
+				} catch (error) {
+					console.error('Error checking habit:', error);
+				}
+			},
+
+			userHabitsChecked: async (user_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/habitt`)
+					if (!response.ok) {
+						throw new Error(`Error fetching skills data: ${response.status} ${response.statusText}`);
+					}
+					const data = await response.json()
+					console.log('Data received:', data)
+					setStore({
+						updatedHabit: data
+					})
+				}
+				catch (error) {
+					console.log(error);
+				}
+			},
 		}
 	};
 };

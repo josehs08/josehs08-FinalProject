@@ -1,10 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from datetime import datetime, timezone
 
-
-
 db = SQLAlchemy()
-#TODO agregar fecha de creacion de cada uno.
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(30), unique=False, nullable=False)
@@ -25,7 +23,7 @@ class User(db.Model):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "foto":self.foto,
-            "created": self.created
+            "created": self.created_at
         }
     
 class Habit(db.Model):
@@ -41,12 +39,14 @@ class Habit(db.Model):
             "id": self.id,
             "name":self.name,
             "description":self.description,
-            "deleted":self.deleted
+            "deleted":self.deleted,
+            "user_id":self.user_id
         }
     
 class Habit_Tracker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     habit_id  = db.Column(db.Integer, db.ForeignKey('habit.id'),nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
     date = db.Column(db.Date(), unique=False, nullable=True)
     completed = db.Column(db.Boolean(), unique=False, nullable=False)
     deleted = db.Column(db.Boolean(), nullable=False)
