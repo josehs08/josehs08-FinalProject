@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Context } from '../store/appContext.js';
-import { EditHabit } from './EditHabit.jsx';
-import { AddHabit } from './AddHabit.jsx';
+import React, { useState, useContext, useEffect } from "react";
+import { Context } from "../../store/appContext.js";
+import { EditHabit } from "./EditHabit.jsx";
+import { AddHabit } from "./AddHabit.jsx";
 
 export const ShowHabits = () => {
   const { actions, store } = useContext(Context);
@@ -17,7 +17,7 @@ export const ShowHabits = () => {
             return value != currentHabit;
           })
         );
-        alert('Habit deleted!');
+        alert("Habit deleted!");
       }
     } catch (error) {
       console.log(error);
@@ -27,7 +27,7 @@ export const ShowHabits = () => {
   const getActiveHabits = () => store.habit.filter((habit) => !habit.deleted);
 
   return (
-    <div className='container p-3 border rounded bg-white shadow'>
+    <div className="container p-3 border rounded bg-white shadow">
       <h2>Habit list</h2>
       {getActiveHabits().length <= 0 ? (
         <p>No tienes habitos!</p>
@@ -35,14 +35,14 @@ export const ShowHabits = () => {
         store.habit
           .filter((habit) => !habit.deleted)
           .map((habit, index) => (
-            <li key={index} className='list-group-item shadow'>
-              <div className='form-check-label d-flex justify-content-between rounded'>
-                <div className='d-flex gap-3'>
+            <li key={index} className="list-group-item shadow">
+              <div className="form-check-label d-flex justify-content-between rounded">
+                <div className="d-flex gap-3">
                   {store.updatedHabit.find((uh) => uh.id === habit.id)
                     ?.completed ? (
                     <input
-                      type='checkbox'
-                      className='form-check-input'
+                      type="checkbox"
+                      className="form-check-input"
                       checked
                       onChange={() => {
                         actions.checkHabit(habit.id, store.user.id);
@@ -50,8 +50,8 @@ export const ShowHabits = () => {
                     />
                   ) : (
                     <input
-                      type='checkbox'
-                      className='form-check-input'
+                      type="checkbox"
+                      className="form-check-input"
                       onChange={() => {
                         actions.checkHabit(habit.id, store.user.id);
                       }}
@@ -61,17 +61,17 @@ export const ShowHabits = () => {
                     <strong>{habit.name}</strong>
                   </p>
                 </div>
-                <div className='gap-1 d-flex'>
+                <div className="gap-1 d-flex">
                   <button
                     onClick={() => handleDelete(habit)}
-                    className='btn btn-dark'
+                    className="btn btn-dark"
                   >
                     Borrar
                   </button>
                   <button
-                    type='button'
-                    className='btn btn-dark'
-                    data-bs-toggle='modal'
+                    type="button"
+                    className="btn btn-dark"
+                    data-bs-toggle="modal"
                     data-bs-target={`#modalEdit-${habit.id}`}
                   >
                     Edit Habits
@@ -80,14 +80,14 @@ export const ShowHabits = () => {
               </div>
 
               <div
-                className='modal fade'
+                className="modal fade"
                 id={`modalEdit-${habit.id}`}
-                tabindex='-1'
+                tabindex="-1"
                 aria-labelledby={`modalEdit-${habit.id}`}
-                aria-hidden='true'
+                aria-hidden="true"
               >
-                <div className='modal-dialog'>
-                  <div className='modal-content'>
+                <div className="modal-dialog">
+                  <div className="modal-content">
                     <EditHabit habit={habit} />
                   </div>
                 </div>
@@ -96,22 +96,22 @@ export const ShowHabits = () => {
           ))
       )}
       <button
-        type='button'
-        className='btn btn-dark mt-3 w-100'
-        data-bs-toggle='modal'
+        type="button"
+        className="btn btn-dark mt-3 w-100"
+        data-bs-toggle="modal"
         data-bs-target={`#modalAdd`}
       >
         Add Habits
       </button>
       <div
-        className='modal fade'
+        className="modal fade"
         id={`modalAdd`}
-        tabindex='-1'
+        tabindex="-1"
         aria-labelledby={`modalAdd`}
-        aria-hidden='true'
+        aria-hidden="true"
       >
-        <div className='modal-dialog'>
-          <div className='modal-content'>
+        <div className="modal-dialog">
+          <div className="modal-content">
             <AddHabit />
           </div>
         </div>

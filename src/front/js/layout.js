@@ -6,8 +6,8 @@ import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/Navbar.jsx";
 
-import { Register } from "./component/Register.jsx";
-import { Login } from "./component/Login.jsx";
+import { Register } from "./component/LoginAndRegister/Register.jsx";
+import { Login } from "./component/LoginAndRegister/Login.jsx";
 import { Profile } from "./pages/Profile.jsx";
 import { Habit } from "./pages/Habit.jsx";
 import { Skills } from "./pages/Skills.jsx";
