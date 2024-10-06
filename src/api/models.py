@@ -39,16 +39,15 @@ class Habit(db.Model):
             "id": self.id,
             "name":self.name,
             "description":self.description,
+            "date":self.date,
             "deleted":self.deleted,
             "user_id":self.user_id
         }
     
-class Habit_Tracker(db.Model):
+class Habit_Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     habit_id  = db.Column(db.Integer, db.ForeignKey('habit.id'),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-    date = db.Column(db.Date(), unique=False, nullable=True)
-    completed = db.Column(db.Boolean(), unique=False, nullable=False)
     deleted = db.Column(db.Boolean(), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
 
