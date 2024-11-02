@@ -1,6 +1,9 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../../store/appContext";
 import { Navigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 export const Login = () => {
   const { actions, store } = useContext(Context);
@@ -18,6 +21,39 @@ export const Login = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (codeResponse) => {
+      const userInfo = await axios.get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${codeResponse.access_token}`
+      );
+
+      if (userInfo.data) {
+        const user = userInfo.data;
+        try {
+          const response = await axios.post(
+            `${process.env.BACKEND_URL}/api/login-google`,
+            {
+              email: user.email,
+              googleId: user.id,
+            }
+          );
+
+          const data = response.data;
+          if (response.status === 200) {
+            localStorage.setItem("token", data.token);
+            actions.getUserLogin();
+          } else {
+            alert("Google login failed");
+          }
+        } catch (error) {
+          console.error("Google login error:", error);
+          alert("Error logging in with Google");
+        }
+      }
+    },
+    onError: (error) => console.log("Google login failed:", error),
+  });
 
   const handleSubmit = async (e) => {
     try {
@@ -64,7 +100,12 @@ export const Login = () => {
         </div>
         <button className="w-100 btn btn-dark">Login</button>
       </form>
-      W
+      <button
+        className="w-100 btn btn-danger mt-3"
+        onClick={() => googleLogin()}
+      >
+        Login with Google 🚀
+      </button>
     </div>
   );
 };

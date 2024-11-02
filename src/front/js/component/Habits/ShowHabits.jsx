@@ -1,26 +1,20 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../../store/appContext.js";
 import { EditHabit } from "./EditHabit.jsx";
 import { AddHabit } from "./AddHabit.jsx";
 
 export const ShowHabits = () => {
   const { actions, store } = useContext(Context);
+
   const handleDelete = async (currentHabit) => {
     try {
-      const response = await actions.updateHabit(currentHabit.id, {
-        ...currentHabit,
-        deleted: !currentHabit.deleted,
-      });
+      const response = await actions.changeHabitDeleted(currentHabit.id);
+
       if (response) {
-        setHabitList(
-          habitList.filter((value) => {
-            return value != currentHabit;
-          })
-        );
         alert("Habit deleted!");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -28,53 +22,52 @@ export const ShowHabits = () => {
 
   return (
     <div className="container p-3 border rounded bg-white shadow">
-      <h2>Habit list</h2>
-      {getActiveHabits().length <= 0 ? (
-        <p>No tienes habitos!</p>
+      <h2>Habit List</h2>
+      {getActiveHabits().length === 0 ? (
+        <p>No habits found!</p>
       ) : (
-        store.habit
-          .filter((habit) => !habit.deleted)
-          .map((habit, index) => (
-            <li key={index} className="list-group-item shadow">
-              <div className="form-check-label d-flex justify-content-between rounded">
-                <div className="d-flex gap-3">
-                  {store.updatedHabit.find((uh) => uh.id === habit.id)
-                    ?.completed ? (
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      checked
-                      onChange={() => {
-                        actions.checkHabit(habit.id, store.user.id);
-                      }}
-                    />
-                  ) : (
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      onChange={() => {
-                        actions.checkHabit(habit.id, store.user.id);
-                      }}
-                    />
-                  )}
-                  <p>
-                    <strong>{habit.name}</strong>
-                  </p>
+        <ul className="list-group">
+          {getActiveHabits().map((habit) => (
+            <li key={habit.id} className="list-group-item shadow-sm">
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-3">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={
+                      store.completedHabits?.find(
+                        (uh) => uh.habit_id === habit.id
+                      )?.completed
+                    }
+                    onChange={() =>
+                      actions.completeHabit(habit.id, store.user.id)
+                    }
+                  />
+                  <div>
+                    <p className="mb-0">
+                      <strong>{habit.name}</strong>
+                    </p>
+                    <small className="text-muted">{habit.description}</small>
+                    <br />
+                    <small className="text-muted">
+                      Created on:{habit.date}
+                    </small>
+                  </div>
                 </div>
-                <div className="gap-1 d-flex">
+                <div className="d-flex gap-2">
                   <button
                     onClick={() => handleDelete(habit)}
-                    className="btn btn-dark"
+                    className="btn btn-danger"
                   >
-                    Borrar
+                    Delete
                   </button>
                   <button
                     type="button"
-                    className="btn btn-dark"
+                    className="btn btn-primary"
                     data-bs-toggle="modal"
                     data-bs-target={`#modalEdit-${habit.id}`}
                   >
-                    Edit Habits
+                    Edit
                   </button>
                 </div>
               </div>
@@ -82,7 +75,7 @@ export const ShowHabits = () => {
               <div
                 className="modal fade"
                 id={`modalEdit-${habit.id}`}
-                tabindex="-1"
+                tabIndex="-1"
                 aria-labelledby={`modalEdit-${habit.id}`}
                 aria-hidden="true"
               >
@@ -93,21 +86,22 @@ export const ShowHabits = () => {
                 </div>
               </div>
             </li>
-          ))
+          ))}
+        </ul>
       )}
       <button
         type="button"
-        className="btn btn-dark mt-3 w-100"
+        className="btn btn-success mt-3 w-100"
         data-bs-toggle="modal"
-        data-bs-target={`#modalAdd`}
+        data-bs-target="#modalAdd"
       >
         Add Habits
       </button>
       <div
         className="modal fade"
-        id={`modalAdd`}
-        tabindex="-1"
-        aria-labelledby={`modalAdd`}
+        id="modalAdd"
+        tabIndex="-1"
+        aria-labelledby="modalAdd"
         aria-hidden="true"
       >
         <div className="modal-dialog">

@@ -12,6 +12,10 @@ import { Profile } from "./pages/Profile.jsx";
 import { Habit } from "./pages/Habit.jsx";
 import { Skills } from "./pages/Skills.jsx";
 import { Settings } from "./pages/Settings.jsx";
+import { ResetPass } from "./component/ResetPass.jsx";
+import { UpdatePassword } from "./component/UpdatePassword.jsx";
+
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 //create your first component
 const Layout = () => {
@@ -23,19 +27,23 @@ const Layout = () => {
 
     return (
         <div>
-            <BrowserRouter basename={basename}>
-                <Navbar />
-                <Routes>
-                    <Route element={<Home />} path="/" />
-                    <Route element={<Register />} path="/register" />
-                    <Route element={<Login />} path="/login" />
-                    <Route element={<Profile />} path="/profile" />
-                    <Route element={<Habit />} path="/habit" />
-                    <Route element={<Skills />} path="/skills" />
-                    <Route element={<Settings />} path="/settings" />
-                    <Route element={<h1>Not found!</h1>} />
-                </Routes>
-            </BrowserRouter>
+            <GoogleOAuthProvider clientId='379339280263-lm3cd590elibacpt1k04ihcjoq94ok8i.apps.googleusercontent.com'>
+                <BrowserRouter basename={basename}>
+                    <Navbar />
+                    <Routes>
+                        <Route element={<Home />} path="/" />
+                        <Route element={<Register />} path="/register" />
+                        <Route element={<Login />} path="/login" />
+                        <Route element={<Profile />} path="/profile" />
+                        <Route element={<Habit />} path="/habit" />
+                        <Route element={<Skills />} path="/skills" />
+                        <Route element={<Settings />} path="/settings" />
+                        <Route element={<ResetPass />} path="/recovery-password" />
+                        <Route element={< UpdatePassword />} path="password-update" />
+                        <Route element={<h1>Not found!</h1>} />
+                    </Routes>
+                </BrowserRouter>
+            </GoogleOAuthProvider>
         </div>
     );
 };

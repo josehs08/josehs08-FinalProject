@@ -6,9 +6,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 			habit: []
 		},
 		actions: {
+			updateUser: async (userData) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${userData.id}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(userData),
+					});
+					if (!response.ok) throw new Error("Failed to update user");
+					const data = await response.json();
+					setStore({ user: data });
+					return true;
+				} catch (error) {
+					console.error("Error updating user:", error);
+					return false;
+				}
+			},
+
 			register: async (user) => {
 				try {
-					console.log("user desde el front", user)
 					const response = await fetch(`${process.env.BACKEND_URL}/api/users`, {
 						method: "POST",
 						body: user
@@ -18,7 +36,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 					return (false);
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			},
 
@@ -38,19 +56,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 						getActions().getUserLogin()
 						return true
 					} else {
-						console.log(response)
 						return false
 					}
 				} catch (error) {
-					console.log(error)
+					console.error(error);
 				}
 			},
-			logout: () => {
+			logout: (history) => {
 				setStore({
-					user: null
-				})
-				localStorage.removeItem("token")
-				localStorage.removeItem("user")
+					token: null,
+					user: null,
+					habit: [],
+					skills: [],
+					completedHabits: [],
+
+				});
+				localStorage.removeItem("token");
+				localStorage.removeItem("user");
+				alert("You have been logged out successfully.");
 			},
 			getUserLogin: async () => {
 				try {
@@ -70,7 +93,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 					localStorage.setItem("user", JSON.stringify(data))
 				} catch (error) {
-					console.log(error);
+					console.error(error)
 				}
 			},
 			addHabit: async (habit) => {
@@ -80,6 +103,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(habit)
 					})
+					console.log(response)
 					const data = await response.json()
 
 					if (response.ok) {
@@ -88,10 +112,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 					return false
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			},
-
 			showHabit: async (user_id) => {
 				try {
 					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/habits`)
@@ -99,38 +122,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error(`Error fetching user data: ${response.status} ${response.statusText}`);
 					}
 					const data = await response.json()
-					console.log('Data received:', data)
 					setStore({
 						habit: data
 					})
 				}
 				catch (error) {
-					console.log(error);
+					console.error(error);
 
 				}
-			},
-
-			updateHabit: async (habit_id, habit) => {
-				try {
-					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}`, {
-						method: "PUT",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(habit)
-					})
-					const data = await response.json()
-
-					if (response.ok) {
-						setStore({
-							habit: getStore().habit.map((item) => item.id === habit_id ? data : item)
-						});
-						return true;
-					}
-					return false
-				}
-				catch (error) {
-					console.log(error)
-				}
-
 			},
 			getSkills: async (user_id) => {
 				try {
@@ -139,13 +138,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error(`Error fetching skills data: ${response.status} ${response.statusText}`);
 					}
 					const data = await response.json()
-					console.log('Data received:', data)
 					setStore({
 						skills: data
 					})
 				}
 				catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			},
 			addSkills: async (skill) => {
@@ -166,7 +164,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return true;
 				}
 				catch (error) {
-					console.log(error)
+					console.error(error)
 				}
 			},
 			deleteSkills: async (skill_id) => {
@@ -180,78 +178,108 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 				}
 				catch (error) {
-					console.log(error)
+					console.error(error)
 				}
 			},
 
-			completeHabit: async (habit_id) => {
+			completeHabit: async (habit_id, user_id) => {
 				try {
-					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}/complete`, {
-						method: "POST"
-					})
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habit/${habit_id}/${user_id}/complete`,
+						{
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+						}
+					);
 					if (response.ok) {
-						console.log('Se completo el habito')
-					}
-				}
-				catch (error) {
-					console.log(error);
-
-				}
-			},
-
-			editUser: async (user) => {
-				try {
-					const response = await fetch(`${process.env.BACKEND_URL}/api/users/${user.id}`, {
-						method: "PUT",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify(user)
-					})
-					if (response.ok) {
-						console.log("Probando");
-
+						getActions().getCompletedHabits(getStore().user.id);
 					}
 				} catch (error) {
-					console.log(error);
-
+					console.error(error);
 				}
 			},
-
-			checkHabit: async (habit_id, user_id) => {
+			getCompletedHabits: async (user_id) => {
 				try {
-					const response = await fetch(`${process.env.BACKEND_URL}/api/habit/${habit_id}/${user_id}/complete`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-					});
-					const data = await response.json()
-					if (response.ok) {
-						getActions().userHabitsChecked(user_id)
-					}
-					return await response.json();
-				} catch (error) {
-					console.error('Error checking habit:', error);
-				}
-			},
-
-			userHabitsChecked: async (user_id) => {
-				try {
-					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/habitt`)
+					const response = await fetch(`${process.env.BACKEND_URL}/api/user/${user_id}/habitlog`)
 					if (!response.ok) {
 						throw new Error(`Error fetching skills data: ${response.status} ${response.statusText}`);
 					}
 					const data = await response.json()
 					console.log('Data received:', data)
 					setStore({
-						updatedHabit: data
+						completedHabits: data
 					})
+					getActions().getSkills(getStore().user.id);
 				}
 				catch (error) {
-					console.log(error);
+					console.error(error);
+				}
+			},
+			changeHabitDeleted: async (habit_id) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}`, {
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ deleted: true })
+					}
+					);
+					if (response.ok) {
+						getActions().showHabit(getStore().user.id)
+					}
+				} catch (error) {
+					console.error(error);
+				}
+			},
+
+			resetPassword: async (email) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/reset-password`,
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify(email)
+						}
+					)
+					console.log(response)
+				} catch (error) {
+					console.log(error)
+				}
+			},
+			updatePassword: async (tokenUpdate, newPass) => {
+				try {
+					let response = await fetch(`${process.env.BACKEND_URL}/api/update-password`, {
+						method: "PUT",
+						headers: {
+							"Authorization": `Bearer ${tokenUpdate}`,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(newPass)
+					})
+					console.log(response)
+				} catch (error) {
+					console.log(error)
+				}
+			},
+			updateHabit: async (habit_id, habit) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/habits/${habit_id}`, {
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(habit)
+					})
+					const data = await response.json()
+
+					if (response.ok) {
+						getActions().showHabit(getStore().user.id)
+					}
+					return true;
+				}
+				catch (error) {
+					console.error(error);
 				}
 			},
 		}
-	};
-};
-
+	}
+}
 export default getState;

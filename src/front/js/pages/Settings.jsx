@@ -1,56 +1,81 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Context } from '../store/appContext.js';
+import React, { useState, useContext } from "react";
+import { Context } from "../store/appContext";
+import { Navigate } from "react-router-dom";
 
 export const Settings = () => {
-  const { store } = useContext(Context);
-  if (store.user) {
-    return (
-      <div className='d-flex m-5 '>
-        <div className='container p-3 border roudned bg-white'>
-          <h1>Settings</h1>
+  const { actions, store } = useContext(Context);
+  const [user, setUser] = useState({ ...store.user });
+  const [loading, setLoading] = useState(false);
 
-          <div className='card shadow-sm mt-4'>
-            <div className='card-body'>
-              <h3 className='mb-2'>Dark Mode</h3>
-              <label className='form-check-label' htmlFor='dark-mode-switch'>
-                Dark Mode:
-              </label>
-              <div className='form-check mb-3'>
-                <input className='form-check-input' type='checkbox' />
-                <label
-                  className='form-check-label'
-                  htmlFor='dark-mode-switch'
-                ></label>
-              </div>
-            </div>
-          </div>
+  const handleChange = (e) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-          <div className='card shadow-sm mt-4'>
-            <div className='card-body'>
-              <h3 className='mb-2'>Notifications</h3>
-              <p>Enable/Disable Notifications</p>
-              <div className='mb-3'>
-                <label>Email Frequency:</label>
-                <select>
-                  <option value='daily'>Daily</option>
-                  <option value='weekly'>Weekly</option>
-                  <option value='monthly'>Monthly</option>
-                </select>
-              </div>
-              <h3 className='mb-2'>Reminders</h3>
-              <p>Select a reminder time:</p>
-              <label>Reminder Time:</label>
-              <input type='number' placeholder='Hour (0-12)' />
-              <input type='string' value='' placeholder='AM/PM' />
-              <br />
-              <button className='btn btn-dark'>Save</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  } else {
-    return <Navigate to='/' />;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await actions.updateUser(user);
+      if (response) {
+        alert("Profile updated successfully");
+      } else {
+        alert("Error updating profile");
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!store.user) {
+    return <Navigate to="/" />;
   }
+
+  return (
+    <div className="container mt-5 rounded border shadow p-3">
+      <h2>Edit Profile</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">First Name:</label>
+          <input
+            type="text"
+            className="form-control"
+            name="first_name"
+            value={user.first_name || ""}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Last Name:</label>
+          <input
+            type="text"
+            className="form-control"
+            name="last_name"
+            value={user.last_name || ""}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Email:</label>
+          <input
+            type="email"
+            className="form-control"
+            name="email"
+            value={user.email || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
+      </form>
+    </div>
+  );
 };
