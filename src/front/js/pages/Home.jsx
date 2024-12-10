@@ -12,7 +12,7 @@ export const Home = () => {
           <div className="col-md-6 p-5">
             <h1 className="display-1 mb-4">HabiQuest</h1>
             <p className="lead">
-              Transform your daily routines into an epic adventure. With
+              Trransform your daily routines into an epic adventure. With
               HabiQuest, every habit you accomplish earns you points and levels
               up your skills.
             </p>
